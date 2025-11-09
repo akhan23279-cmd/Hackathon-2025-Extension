@@ -11,6 +11,12 @@
     let FLASH_THRESHOLD_COUNT = 5; // Default: 5 flashes (set from storage)
     const FLASH_THRESHOLD_TIME = 1000; // ...in 1 second
 
+    // *** THIS IS THE FIX ***
+    // Cooldown to prevent a single complex event (like page load) from firing multiple times
+    let isFlashCooldown = false;
+    const FLASH_COOLDOWN_MS = 100; // Ignore changes for 100ms after one is detected
+    // This still allows us to detect flashes up to 10hz (10 flashes/sec)
+
     let isWarningActive = false;
     let mutationObserver = null;
     let isCheckEnabled = true;
@@ -99,31 +105,37 @@
     }
 
     /**
-     * Records a "flash event".
+     * Records a "flash event". Now includes a cooldown.
      */
     function recordFlash() {
-        if (isWarningActive || !isCheckEnabled) return;
+        // *** THIS IS THE FIX ***
+        // If we're already warned, or the check is off, or we're in the cooldown period, do nothing.
+        if (isWarningActive || !isCheckEnabled || isFlashCooldown) return;
 
+        // 1. Start the cooldown
+        isFlashCooldown = true;
+
+        // 2. Add the timestamp and prune the list
         const now = Date.now();
         flashTimestamps.push(now);
-
-        // Prune old timestamps
         flashTimestamps = flashTimestamps.filter(timestamp => now - timestamp < FLASH_THRESHOLD_TIME);
 
-        // Check threshold
+        // 3. Check the threshold
         if (flashTimestamps.length >= FLASH_THRESHOLD_COUNT) {
             console.warn(`ClearView: Rapid flashing detected! (${flashTimestamps.length} events). Triggering warning.`);
             showWarning();
         }
+
+        // 4. End the cooldown after a short period
+        setTimeout(() => {
+            isFlashCooldown = false;
+        }, FLASH_COOLDOWN_MS);
     }
 
     /**
      * The MutationObserver callback.
-     * *** THIS IS THE FIX ***
-     * We no longer count every single mutation. Instead, if *any*
-     * mutations happen in this batch, we count it as ONE "event".
-     * A normal page load (many changes at once) is 1 event.
-     * A real flash (many changes, then more changes) is 2+ events.
+     * This logic is correct: it calls recordFlash() *once* per batch of changes.
+     * The new cooldown logic in recordFlash() prevents this from firing too often.
      */
     const observerCallback = (mutations) => {
         if (mutations.length > 0) {
