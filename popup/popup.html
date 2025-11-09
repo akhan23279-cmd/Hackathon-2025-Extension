@@ -2,110 +2,242 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClearView Accessibility Tools</title>
     <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-<h2>ClearView Accessibility</h2>
+<!-- Header with Logo -->
+<div class="header">
+    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/clearviewLogo-fssSCEXp2cKiJkb9AYXktI8P71OqVV.png" alt="ClearView Logo" class="logo" />
+    <h1>ClearView</h1>
+</div>
 
+<!-- Master Toggle -->
 <div class="toggle-wrapper">
-    <label class="switch-label">Extension Enabled</label>
-    <label class="switch-toggle">
-        <input type="checkbox" id="toggleExtension">
+    <span class="switch-label">Extension Enabled</span>
+    <label class="switch-toggle" for="toggleExtension">
+        <input type="checkbox" id="toggleExtension" aria-label="Toggle extension on or off">
         <span class="slider round"></span>
     </label>
 </div>
 
+<!-- Main Controls Wrapper -->
 <div id="all-controls-wrapper">
 
+    <!-- Hidden Keyboard Wrapper -->
     <div id="clearview-keyboard-wrapper">
         <div class="simple-keyboard">...</div>
     </div>
 
-    <h3>Safety</h3>
-    <label>
-        <input type="checkbox" id="epilepsyCheck"> Epilepsy Flash Protection
-    </label>
+    <!-- Safety Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Safety
+        </h3>
+        <div class="control-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="epilepsyCheck">
+                <span class="checkbox-text">Epilepsy Flash Protection</span>
+            </label>
 
-    <label>
-        <input type="checkbox" id="disableAutoplay"> Disable Video Autoplay
-    </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="disableAutoplay">
+                <span class="checkbox-text">Disable Video Autoplay</span>
+            </label>
 
-    <label>
-        <input type="checkbox" id="blueTint"> Apply Blue Tint Filter
-    </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="blueTint">
+                <span class="checkbox-text">Apply Blue Tint Filter</span>
+            </label>
 
-    <label for="sensitivity">Sensitivity (Flashes/sec):</label>
-    <input type="range" id="sensitivity" min="3" max="10" step="1" value="5">
-    <span id="sensitivityValue">5</span>
-    <small style="display: block; margin-top: -5px;">Page reload required to apply.</small>
-
-    <hr>
-
-
-    <label for="fontSelect">Font:</label>
-    <select id="fontSelect">
-        <option value="OpenDyslexic">OpenDyslexic</option>
-        <option value="Arial">Arial</option>
-        <option value="Verdana">Verdana</option>
-        <option value="Tahoma">Tahoma</option>
-    </select>
-
-    <label>
-        <input type="checkbox" id="removeItalics"> Remove Italics
-    </label>
-
-    <h3>Text</h3>
-    <label for="textSize">Size:</label>
-    <input type="range" id="textSize" min="0.9" max="1.5" step="0.01" value="1.0">
-
-    <label for="textColor">Color:</label>
-    <input type="color" id="textColor" value="#333333">
-
-    <label for="backgroundColor">Background:</label>
-    <input type="color" id="backgroundColor" value="#FFFFFF">
-
-    <h3>Links</h3>
-    <label for="linkSize">Size:</label>
-    <input type="range" id="linkSize" min="1" max="2" step="0.05" value="1.05">
-
-    <label for="linkColor">Color:</label>
-    <input type="color" id="linkColor" value="#0645AD">
-
-    <label for="linkHoverColor">Hover Color:</label>
-    <input type="color" id="linkHoverColor" value="#003399">
-
-    <h3>Spacing</h3>
-    <label for="lineSpacing">Line Height:</label>
-    <input type="range" id="lineSpacing" min="1" max="2" step="0.05" value="1.4">
-
-    <label for="letterSpacing">Letter Spacing:</label>
-    <input type="range" id="letterSpacing" min="0" max="0.2" step="0.01" value="0.05">
-
-    <h3>Voice Command</h3>
-    <div class="voice-btn-group">
-        <button id="startVoiceBtn" class="voice-btn start">Start Listening</button>
-        <button id="stopVoiceBtn" class="voice-btn stop">Stop Listening</button>
+            <div class="slider-control">
+                <label for="sensitivity" class="slider-label">Sensitivity (Flashes/sec):</label>
+                <div class="slider-wrapper">
+                    <input type="range" id="sensitivity" min="3" max="10" step="1" value="5" aria-label="Flash sensitivity threshold">
+                    <span id="sensitivityValue" class="value-display" aria-live="polite">5</span>
+                </div>
+                <small class="note">Page reload required to apply.</small>
+            </div>
+        </div>
     </div>
 
-    <h3>Screen Reader</h3>
-    <label for="voicePace">Reading Speed (ms/word):</label>
-    <input type="range" id="voicePace" min="100" max="1000" step="50" value="300">
-    <span id="voicePaceValue">300</span>
-    <button id="readPageBtn" class="voice-btn read-page">Read Page</button>
+    <!-- Font Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="4 7 4 4 20 4 20 7"/>
+                <line x1="9" y1="20" x2="15" y2="20"/>
+                <line x1="12" y1="4" x2="12" y2="20"/>
+            </svg>
+            Font
+        </h3>
+        <div class="control-group">
+            <div class="input-group">
+                <label for="fontSelect">Font Family:</label>
+                <select id="fontSelect">
+                    <option value="OpenDyslexic">OpenDyslexic</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Tahoma">Tahoma</option>
+                </select>
+            </div>
 
-    <h3>Visual Reader</h3>
-    <label for="visualPace">Highlight Speed (ms/word):</label>
-    <input type="range" id="visualPace" min="100" max="1000" step="50" value="300">
-    <span id="visualPaceValue">300</span>
-
-    <div class="voice-btn-group">
-        <button id="visualStartStopBtn" class="voice-btn read-page visual-toggle">Start Visual Read</button>
+            <label class="checkbox-label">
+                <input type="checkbox" id="removeItalics">
+                <span class="checkbox-text">Remove Italics</span>
+            </label>
+        </div>
     </div>
 
+    <!-- Text Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="17" y1="10" x2="3" y2="10"/>
+                <line x1="21" y1="6" x2="3" y2="6"/>
+                <line x1="21" y1="14" x2="3" y2="14"/>
+                <line x1="17" y1="18" x2="3" y2="18"/>
+            </svg>
+            Text
+        </h3>
+        <div class="control-group">
+            <div class="slider-control">
+                <label for="textSize" class="slider-label">Size:</label>
+                <input type="range" id="textSize" min="0.9" max="1.5" step="0.01" value="1.0" aria-label="Text size adjustment">
+            </div>
 
+            <div class="color-input-group">
+                <label for="textColor">Color:</label>
+                <input type="color" id="textColor" value="#333333">
+            </div>
+
+            <div class="color-input-group">
+                <label for="backgroundColor">Background:</label>
+                <input type="color" id="backgroundColor" value="#FFFFFF">
+            </div>
+        </div>
+    </div>
+
+    <!-- Links Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            Links
+        </h3>
+        <div class="control-group">
+            <div class="slider-control">
+                <label for="linkSize" class="slider-label">Size:</label>
+                <input type="range" id="linkSize" min="1" max="2" step="0.05" value="1.05" aria-label="Link size adjustment">
+            </div>
+
+            <div class="color-input-group">
+                <label for="linkColor">Color:</label>
+                <input type="color" id="linkColor" value="#0645AD">
+            </div>
+
+            <div class="color-input-group">
+                <label for="linkHoverColor">Hover Color:</label>
+                <input type="color" id="linkHoverColor" value="#003399">
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacing Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            Spacing
+        </h3>
+        <div class="control-group">
+            <div class="slider-control">
+                <label for="lineSpacing" class="slider-label">Line Height:</label>
+                <input type="range" id="lineSpacing" min="1" max="2" step="0.05" value="1.4" aria-label="Line height adjustment">
+            </div>
+
+            <div class="slider-control">
+                <label for="letterSpacing" class="slider-label">Letter Spacing:</label>
+                <input type="range" id="letterSpacing" min="0" max="0.2" step="0.01" value="0.05" aria-label="Letter spacing adjustment">
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Command Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            Voice Command
+        </h3>
+        <div class="control-group">
+            <div class="voice-btn-group">
+                <button id="startVoiceBtn" class="voice-btn start">Start Listening</button>
+                <button id="stopVoiceBtn" class="voice-btn stop">Stop Listening</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen Reader Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Screen Reader
+        </h3>
+        <div class="control-group">
+            <div class="slider-control">
+                <label for="voicePace" class="slider-label">Reading Speed (ms/word):</label>
+                <div class="slider-wrapper">
+                    <input type="range" id="voicePace" min="100" max="1000" step="50" value="300" aria-label="Screen reader speed">
+                    <span id="voicePaceValue" class="value-display" aria-live="polite">300</span>
+                </div>
+            </div>
+            <button id="readPageBtn" class="voice-btn read-page">Read Page</button>
+        </div>
+    </div>
+
+    <!-- Visual Reader Section -->
+    <div class="section">
+        <h3 class="section-title">
+            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Visual Reader
+        </h3>
+        <div class="control-group">
+            <div class="slider-control">
+                <label for="visualPace" class="slider-label">Highlight Speed (ms/word):</label>
+                <div class="slider-wrapper">
+                    <input type="range" id="visualPace" min="100" max="1000" step="50" value="300" aria-label="Visual reader highlight speed">
+                    <span id="visualPaceValue" class="value-display" aria-live="polite">300</span>
+                </div>
+            </div>
+            <button id="visualStartStopBtn" class="voice-btn read-page visual-toggle">Start Visual Read</button>
+        </div>
+    </div>
+
+    <!-- Reset Button -->
     <button id="resetButton" class="reset-btn">Reset to Defaults</button>
 
-</div> <script src="popup.js"></script>
+</div>
+
+<script src="popup.js"></script>
 </body>
 </html>
