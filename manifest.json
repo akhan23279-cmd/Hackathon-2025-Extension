@@ -15,7 +15,7 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": ["scripts/text-formatter.js", "scripts/voice-control.js"],
+      "js": ["scripts/text-formatter.js", "scripts/voice-control.js","scripts/visual-control.js"],
       "run_at": "document_idle"
     }
   ],

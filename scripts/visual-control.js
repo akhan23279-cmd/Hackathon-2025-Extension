@@ -15,6 +15,11 @@ window.ClearViewVisual = {
         if (this.isInitialized) return;
         this.isInitialized = true;
 
+        // Initialize pace from storage
+        chrome.storage.sync.get("visualPace", (data) => {
+            this.pace = data.visualPace || 300;
+        });
+
         console.log("✅ ClearView Visual Reader initialized (no screenreader)");
     },
 
@@ -56,6 +61,7 @@ window.ClearViewVisual = {
 
     setPace(msPerWord) {
         this.pace = Math.max(50, msPerWord); // prevent too fast
+        console.log("Visual pace set to:", this.pace);
     },
 
     // --- Reset all states ---
@@ -70,11 +76,19 @@ window.ClearViewVisual = {
 
     // --- Find and wrap words ---
     prepareWords() {
+        // NOTE: Must clear existing .clearview-word spans before re-wrapping
+        this.clearHighlights(); // Clear highlights
+        document.querySelectorAll(".clearview-word").forEach(span => {
+            // Unwrap by replacing the span with its text content
+            span.parentNode.replaceChild(document.createTextNode(span.textContent + " "), span);
+        });
+
         const elements = Array.from(
             document.querySelectorAll("h1, h2, h3, h4, h5, h6, p")
         ).filter(el => el.offsetParent !== null && el.innerText.trim().length > 0);
 
         elements.forEach(el => {
+            // Use innerText to get clean text before splitting
             let text = el.innerText.trim().split(/\s+/);
 
             el.innerHTML = text
@@ -126,4 +140,23 @@ window.ClearViewVisual = {
 
 // Auto-init
 window.ClearViewVisual.init();
-window.ClearViewVisual.start();
+
+// NEW: Message Listener for Popup Control
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "VISUAL_TOGGLE_READING") {
+        if (window.ClearViewVisual.isReading) {
+            window.ClearViewVisual.stop();
+            sendResponse({ status: "Visual reading stopped" });
+        } else {
+            window.ClearViewVisual.start();
+            sendResponse({ status: "Visual reading started" });
+        }
+        return true;
+    } else if (message.action === "VISUAL_SET_PACE") {
+        window.ClearViewVisual.setPace(message.pace);
+        sendResponse({ status: `Visual pace set to ${message.pace}` });
+        return true;
+    }
+});
+
+// REMOVED: window.ClearViewVisual.start();

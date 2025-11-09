@@ -26,6 +26,7 @@
         readingTimeout: null,
         words: [],
         currentWordIndex: 0,
+        pace: 300, // NEW: milliseconds for chunk delay
 
 
 
@@ -36,8 +37,10 @@
 
 
             // Set initial reading state from storage
-            chrome.storage.local.get("isReading", (data) => {
+            chrome.storage.local.get(["isReading", "voicePace"], (data) => {
                 this.isReading = !!data.isReading;
+                // NEW: Initialize pace from storage if available
+                this.pace = data.voicePace || 300;
             });
 
 
@@ -130,6 +133,14 @@
             if (!this.screenReader) return;
             const utter = new SpeechSynthesisUtterance(message);
             this.screenReader.speak(utter);
+        },
+
+        // NEW: Set pace method
+        setPace: function (msPerWord) {
+            this.pace = Math.max(100, msPerWord); // Min 100ms
+            console.log("Voice reading pace (chunk delay) set to:", this.pace);
+            // Save to local storage for persistence on next load
+            chrome.storage.local.set({ voicePace: this.pace });
         },
 
 
@@ -401,7 +412,7 @@
 
 
             const utter = new SpeechSynthesisUtterance(chunkText);
-            utter.rate = 1.0;
+            utter.rate = 1.0; // The screen reader rate is fixed here
 
 
 
@@ -436,10 +447,10 @@
 
                 // Check if there are more words
                 if (this.currentWordIndex < this.words.length) {
-                    // Wait 1 second before reading the next chunk
+                    // Use the adjustable pace as the delay between chunks
                     this.readingTimeout = setTimeout(() => {
                         this.readWordByWord();
-                    }, 1000);
+                    }, this.pace); // UPDATED: Use this.pace
                 } else {
                     // End of reading
                     this.isReading = false;
@@ -558,7 +569,14 @@
                 window.ClearViewVoice.readPage();
                 sendResponse({ status: "Reading page" });
             }
+        } else if (message.action === "VOICE_SET_PACE") { // NEW: Handle pace update
+            window.ClearViewVoice.setPace(message.pace);
+            sendResponse({ status: `Voice pace set to ${message.pace}` });
         }
+
+
+        // IMPORTANT: The Visual Reader's commands must be handled by visual-control.js
+        // If you were to consolidate, you'd handle them here, but they are separate scripts.
 
 
 

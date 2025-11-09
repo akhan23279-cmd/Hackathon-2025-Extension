@@ -15,6 +15,13 @@ const resetButton = document.getElementById("resetButton");
 const startVoiceBtn = document.getElementById("startVoiceBtn");
 const stopVoiceBtn = document.getElementById("stopVoiceBtn");
 const readPageBtn = document.getElementById("readPageBtn");
+const voicePace = document.getElementById("voicePace"); // NEW
+const voicePaceValue = document.getElementById("voicePaceValue"); // NEW
+
+// NEW Visual DOM elements
+const visualPace = document.getElementById("visualPace");
+const visualPaceValue = document.getElementById("visualPaceValue");
+const visualStartStopBtn = document.getElementById("visualStartStopBtn");
 
 // Master Toggle elements
 const toggleExtension = document.getElementById("toggleExtension");
@@ -40,6 +47,9 @@ const DEFAULT_SETTINGS = {
     linkHoverColor: "#003399",
     lineSpacing: 1.4,
     letterSpacing: 0.05,
+    // NEW Pace Defaults
+    voicePace: 300,
+    visualPace: 300,
     // New Safety Defaults
     epilepsyCheck: true,
     disableAutoplay: true,
@@ -70,7 +80,10 @@ const applySettings = debounce(() => {
         linkColor: linkColor.value,
         linkHoverColor: linkHoverColor.value,
         lineSpacing: parseFloat(lineSpacing.value),
-        letterSpacing: parseFloat(letterSpacing.value)
+        letterSpacing: parseFloat(letterSpacing.value),
+        // NEW Pace settings
+        voicePace: parseInt(voicePace.value, 10),
+        visualPace: parseInt(visualPace.value, 10)
     };
 
     // Save to Chrome storage
@@ -80,6 +93,10 @@ const applySettings = debounce(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]) {
             chrome.tabs.sendMessage(tabs[0].id, { action: "updateSettings", settings: options });
+
+            // Send pace updates to content scripts
+            sendVoiceCommand("VOICE_SET_PACE", options.voicePace);
+            sendVoiceCommand("VISUAL_SET_PACE", options.visualPace);
         }
     });
 }, 50);
@@ -96,6 +113,12 @@ function updatePopupUI(settings) {
     linkHoverColor.value = settings.linkHoverColor || DEFAULT_SETTINGS.linkHoverColor;
     lineSpacing.value = settings.lineSpacing || DEFAULT_SETTINGS.lineSpacing;
     letterSpacing.value = settings.letterSpacing || DEFAULT_SETTINGS.letterSpacing;
+
+    // NEW Pace UI updates
+    voicePace.value = settings.voicePace || DEFAULT_SETTINGS.voicePace;
+    voicePaceValue.textContent = voicePace.value;
+    visualPace.value = settings.visualPace || DEFAULT_SETTINGS.visualPace;
+    visualPaceValue.textContent = visualPace.value;
 
     // Update Safety UI
     epilepsyCheck.checked = settings.epilepsyCheck;
@@ -124,14 +147,28 @@ function resetSettings() {
 }
 
 // Function to send voice commands to the content script
-function sendVoiceCommand(action) {
+function sendVoiceCommand(action, value) { // Added value parameter
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]) {
-            chrome.tabs.sendMessage(tabs[0].id, { action: action }, (response) => {
+            // Construct message based on action and optional value
+            const message = value !== undefined ? { action: action, pace: value } : { action: action };
+
+            chrome.tabs.sendMessage(tabs[0].id, message, (response) => {
                 if (chrome.runtime.lastError) {
                     console.error(chrome.runtime.lastError.message);
                 } else if (response) {
                     console.log(response.status);
+                }
+
+                // NEW: Update visual button state after a toggle command
+                if (action === "VISUAL_TOGGLE_READING") {
+                    if (visualStartStopBtn.textContent.includes("Start")) {
+                        visualStartStopBtn.textContent = "Stop Visual Read";
+                        visualStartStopBtn.classList.add("reading");
+                    } else {
+                        visualStartStopBtn.textContent = "Start Visual Read";
+                        visualStartStopBtn.classList.remove("reading");
+                    }
                 }
             });
         }
@@ -180,6 +217,11 @@ chrome.storage.sync.get().then((settings) => {
 
     // Update the rest of the UI
     updatePopupUI(activeSettings);
+
+    // Initialize the visual button text
+    // NOTE: Cannot reliably read visual state, so default to 'Start' on popup load.
+    visualStartStopBtn.textContent = "Start Visual Read";
+    visualStartStopBtn.classList.remove("reading");
 });
 
 
@@ -208,10 +250,22 @@ lineSpacing.addEventListener("input", applySettings);
 letterSpacing.addEventListener("input", applySettings);
 resetButton.addEventListener("click", resetSettings);
 
+// NEW Pace Control Event Listeners
+voicePace.addEventListener("input", () => voicePaceValue.textContent = voicePace.value);
+voicePace.addEventListener("change", applySettings);
+
+visualPace.addEventListener("input", () => visualPaceValue.textContent = visualPace.value);
+visualPace.addEventListener("change", applySettings);
+
+
 // Voice control event listeners
 startVoiceBtn.addEventListener("click", () => sendVoiceCommand("VOICE_START"));
 stopVoiceBtn.addEventListener("click", () => sendVoiceCommand("VOICE_STOP"));
 readPageBtn.addEventListener("click", () => sendVoiceCommand("VOICE_TOGGLE_READING"));
+
+// NEW Visual Control Event Listener
+visualStartStopBtn.addEventListener("click", () => sendVoiceCommand("VISUAL_TOGGLE_READING"));
+
 
 // --- NEW Safety Event Listeners ---
 
