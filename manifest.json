@@ -14,5 +14,13 @@
       "js": ["scripts/text-formatter.js"],
       "run_at": "document_idle"
     }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["fonts/OpenDyslexic-Regular.woff"],
+      "matches": ["<all_urls>"]
+    }
   ]
+
 }

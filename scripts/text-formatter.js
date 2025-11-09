@@ -15,7 +15,7 @@
       }
 
       :root {
-        --cv-font: Arial, sans-serif;
+        --cv-font: 'OpenDyslexic', Arial, sans-serif;
         --cv-remove-italics: normal;
         --cv-line-height: 1.4;
         --cv-letter-spacing: 0.05em;
@@ -52,7 +52,9 @@
     // Apply CSS variables to root
     function updateVariables(opts) {
         const root = document.documentElement;
-        root.style.setProperty("--cv-font", opts.font || "Arial");
+        // Use OpenDyslexic if selected
+        const fontName = opts.font === "OpenDyslexic" ? "'OpenDyslexic', Arial, sans-serif" : (opts.font || "Arial, sans-serif");
+        root.style.setProperty("--cv-font", fontName);
         root.style.setProperty("--cv-remove-italics", opts.removeItalics ? "normal" : "inherit");
         root.style.setProperty("--cv-line-height", opts.lineSpacing || 1.4);
         root.style.setProperty("--cv-letter-spacing", (opts.letterSpacing || 0.05) + "em");
@@ -66,16 +68,16 @@
         const allElements = Array.from(document.body.querySelectorAll("*"));
         const viewportHeight = window.innerHeight;
 
-        // Split elements into viewport (visible) vs below
         const aboveFold = allElements.filter(el => {
             const rect = el.getBoundingClientRect();
             return rect.top < viewportHeight && rect.bottom > 0;
         });
         const belowFold = allElements.filter(el => !aboveFold.includes(el));
 
-        // Style visible content immediately
+        const fontName = opts.font === "OpenDyslexic" ? "'OpenDyslexic', Arial, sans-serif" : (opts.font || "Arial, sans-serif");
+
         aboveFold.forEach(el => {
-            el.style.fontFamily = opts.font || "Arial";
+            el.style.fontFamily = fontName;
             if (opts.removeItalics) el.style.fontStyle = "normal";
             el.style.lineHeight = opts.lineSpacing || 1.4;
             el.style.letterSpacing = (opts.letterSpacing || 0.05) + "em";
@@ -90,14 +92,13 @@
             }
         });
 
-        // Style below-the-fold elements progressively to avoid blocking
         let index = 0;
         const chunkSize = 50;
 
         function styleChunk() {
             const chunk = belowFold.slice(index, index + chunkSize);
             chunk.forEach(el => {
-                el.style.fontFamily = opts.font || "Arial";
+                el.style.fontFamily = fontName;
                 if (opts.removeItalics) el.style.fontStyle = "normal";
                 el.style.lineHeight = opts.lineSpacing || 1.4;
                 el.style.letterSpacing = (opts.letterSpacing || 0.05) + "em";
